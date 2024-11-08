@@ -1,0 +1,75 @@
+import time
+import random
+import pygame
+
+WIDTH=800
+HEIGHT=600
+TITLE="connect the dots"
+
+pygame.init()
+lines=[]
+count=8
+starttime=0
+totaltime=0
+endtime=0
+next_satelite=0
+run=True
+
+screen=pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption(TITLE)
+
+class Spritesinhertantss(pygame.sprite.Sprite):
+    def __init__(self,i,x,y):
+        super().__init__()
+        self.image=pygame.image.load(i)
+        self.rect=self.image.get_rect()
+        self.rect.x=x
+        self.rect.y=y
+
+gos=pygame.sprite.Group()
+for i in range(8):
+    satelite=Spritesinhertantss("satelite.png",random.randint(50,750),random.randint(50,550))
+    gos.add(satelite)
+
+starttime=time.time()
+def on_mouse_down(pos):
+  global next_satelite,lines
+  
+
+while run:
+  bg=pygame.image.load("space.png")
+  screen.blit(bg,(0,0))
+  number=1
+  if next_satelite<8:
+    totaltime=time.time()-starttime
+    
+  gos.draw(screen)
+  font=pygame.font.SysFont("Times New Roman",20)
+  for satelite in gos.sprites():
+     text=font.render(str(number),True,"white")
+     screen.blit(text,(satelite.rect.x+20,satelite.rect.y+40))
+     number=number+1
+     
+  font=pygame.font.SysFont("Times New Roman",50)
+  text=font.render(str(totaltime),True,"white")
+  screen.blit(text,(50,50))
+  
+  for line in lines:
+    pygame.draw.line(screen,"white",line[0],line[1],5)
+
+  for event in pygame.event.get():
+     if event.type==pygame.QUIT:
+        run=False
+
+     if event.type==pygame.MOUSEBUTTONDOWN:
+        if next_satelite<count:
+           pos=pygame.mouse.get_pos()
+           if gos.sprites()[next_satelite].rect.collidepoint(pos):
+              if next_satelite>0:
+                 lines.append(((gos.sprites()[next_satelite-1].rect.x,gos.sprites()[next_satelite-1].rect.y),(gos.sprites()[next_satelite].rect.x,gos.sprites()[next_satelite].rect.y)))
+              next_satelite=next_satelite+1
+           else:
+               lines.clear()
+               next_satelite=0
+
+  pygame.display.update()
